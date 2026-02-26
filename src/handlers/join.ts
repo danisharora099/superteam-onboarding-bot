@@ -1,5 +1,4 @@
 import { Context } from "telegraf";
-import { message } from "telegraf/filters";
 import { config } from "../config";
 import { upsertMember, logEvent } from "../db/queries";
 import { restrictMember } from "../services/permissions";
