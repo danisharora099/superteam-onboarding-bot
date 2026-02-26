@@ -7,7 +7,7 @@ import { getMessage } from "../services/messages";
 import { logger } from "../logger";
 
 export async function handleIntro(ctx: Context) {
-  if (!ctx.message || !("text" in ctx.message)) return;
+  if (!ctx.message) return;
 
   const chatId = ctx.chat?.id;
   if (chatId !== config.INTRO_CHANNEL_ID) return;
@@ -26,8 +26,29 @@ export async function handleIntro(ctx: Context) {
     return;
   }
 
-  const introText = ctx.message.text;
   const firstName = ctx.from.first_name ?? "there";
+
+  // Reject forwarded messages — must be original content
+  if ("forward_origin" in ctx.message || "forward_from" in ctx.message) {
+    await ctx.reply(
+      `Hey ${firstName}, please write your own intro instead of forwarding someone else's!`,
+      { reply_parameters: { message_id: ctx.message.message_id } }
+    );
+    logEvent(telegramId, "intro_rejected", { reason: "forwarded" });
+    return;
+  }
+
+  // Reject non-text messages (stickers, photos, etc.)
+  if (!("text" in ctx.message)) {
+    await ctx.reply(
+      `Hey ${firstName}, please write a text intro. Stickers and media don't count!`,
+      { reply_parameters: { message_id: ctx.message.message_id } }
+    );
+    logEvent(telegramId, "intro_rejected", { reason: "non_text" });
+    return;
+  }
+
+  const introText = ctx.message.text;
 
   // Validate intro
   const result = validateIntro(introText);

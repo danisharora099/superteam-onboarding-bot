@@ -4,6 +4,7 @@ import { errorHandler } from "./middleware/error-handler";
 import { adminGuard } from "./middleware/admin-guard";
 import { handleJoin } from "./handlers/join";
 import { handleIntro } from "./handlers/intro";
+import { handleEditedIntro } from "./handlers/edited-intro";
 import { handleLeave } from "./handlers/leave";
 import { handleGate } from "./handlers/gate";
 import {
@@ -40,6 +41,10 @@ export function createBot() {
   // Gate: auto-delete messages from pending users in main group
   // Intro: validate intros in the intro channel
   bot.on("message", handleGate, handleIntro);
+
+  // ── Edited messages ────────────────────────────────
+  // Re-validate if a pending user edits their intro
+  bot.on("edited_message", handleEditedIntro);
 
   logger.info("Bot handlers registered");
 
