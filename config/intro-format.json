@@ -1,0 +1,20 @@
+{
+  "minLength": 50,
+  "requiredSections": [
+    {
+      "label": "Name",
+      "keywords": ["name", "i'm", "i am", "myself"],
+      "required": true
+    },
+    {
+      "label": "Background",
+      "keywords": ["background", "work", "experience", "building", "developer", "designer", "marketer", "founder"],
+      "required": true
+    },
+    {
+      "label": "Interest in Superteam",
+      "keywords": ["superteam", "solana", "web3", "crypto", "blockchain", "community", "contribute", "interested"],
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "welcome": "Welcome to Superteam, {name}! 🎉\n\nBefore you can participate in this group, please introduce yourself in our intro channel:\n👉 {introChannelLink}\n\nYour intro should include:\n• Your name\n• Your background/what you do\n• Why you're interested in Superteam/Solana\n\nOnce your intro is validated, you'll be able to chat here!",
+  "introAccepted": "Great intro, {name}! ✅\n\nYou've been unmuted in the main group. Welcome to the community!",
+  "introRejected": "Hey {name}, your intro is missing some details:\n\n{missingItems}\n\nPlease edit or post a new intro that covers all the points. We want to get to know you!",
+  "introTooShort": "Hey {name}, your intro seems a bit short. Please write at least a few sentences covering:\n• Your name\n• Your background\n• Your interest in Superteam/Solana",
+  "alreadyIntroduced": "You've already been introduced! Head back to the main group to chat.",
+  "adminResetSuccess": "Intro for {name} (ID: {id}) has been reset. They'll need to introduce themselves again.",
+  "adminApproveSuccess": "Manually approved {name} (ID: {id}). They can now chat in the main group.",
+  "adminStatusNotFound": "No member found with that ID or username.",
+  "statsMessage": "📊 Superteam Bot Stats\n\nTotal members: {total}\nPending intro: {pending}\nIntroduced: {introduced}\nLeft: {left}"
+}
