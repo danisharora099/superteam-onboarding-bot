@@ -1,0 +1,28 @@
+{
+  "name": "superteam-onboarding-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for Superteam that onboards new members via intro validation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts --ext ts,json",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "Danish Arora",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^17.3.1",
+    "telegraf": "^4.16.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.3.1",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
