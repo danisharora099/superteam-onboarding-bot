@@ -3,6 +3,7 @@ import { config } from "../config";
 import { upsertMember, logEvent } from "../db/queries";
 import { restrictMember } from "../services/permissions";
 import { getMessage } from "../services/messages";
+import { getIntroInviteLink } from "../services/invite-link";
 import { logger } from "../logger";
 
 export async function handleJoin(ctx: Context) {
@@ -27,8 +28,8 @@ export async function handleJoin(ctx: Context) {
     // Mute in main group
     await restrictMember(ctx, telegramId);
 
-    // Build intro channel link
-    const introChannelLink = `https://t.me/c/${String(config.INTRO_CHANNEL_ID).replace("-100", "")}`;
+    // Get intro channel invite link
+    const introChannelLink = await getIntroInviteLink(ctx.telegram);
 
     // Send welcome DM (fallback to group reply)
     const welcomeText = getMessage("welcome", {

@@ -10,6 +10,7 @@ import {
   handleApprove,
   handleStatus,
   handleStats,
+  handleTestJoin,
 } from "./handlers/admin";
 import { logger } from "./logger";
 
@@ -24,6 +25,7 @@ export function createBot() {
   bot.command("approve", adminGuard, handleApprove);
   bot.command("status", adminGuard, handleStatus);
   bot.command("stats", adminGuard, handleStats);
+  bot.command("testjoin", adminGuard, handleTestJoin);
 
   // ── Event handlers ─────────────────────────────────
   bot.on("new_chat_members", handleJoin);

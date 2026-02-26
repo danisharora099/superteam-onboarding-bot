@@ -1,6 +1,8 @@
 import { Context } from "telegraf";
+import { config } from "../config";
 import {
   getMember,
+  upsertMember,
   resetMember,
   markIntroduced,
   getStats,
@@ -8,6 +10,7 @@ import {
 } from "../db/queries";
 import { restrictMember, unrestrictMember } from "../services/permissions";
 import { getMessage } from "../services/messages";
+import { getIntroInviteLink } from "../services/invite-link";
 import { logger } from "../logger";
 
 function parseTarget(text: string): number | null {
@@ -104,6 +107,27 @@ export async function handleStatus(ctx: Context) {
     .join("\n");
 
   await ctx.reply(lines, { parse_mode: "HTML" });
+}
+
+export async function handleTestJoin(ctx: Context) {
+  if (!ctx.from) return;
+
+  const telegramId = ctx.from.id;
+  const username = ctx.from.username ?? null;
+  const firstName = ctx.from.first_name ?? "there";
+
+  // Reset to pending so the intro flow can be tested
+  upsertMember(telegramId, username, firstName);
+  logEvent(telegramId, "test_join", { by: telegramId });
+
+  const introChannelLink = await getIntroInviteLink(ctx.telegram);
+
+  await ctx.reply(
+    getMessage("welcome", { name: firstName, introChannelLink }),
+    { parse_mode: "HTML" }
+  );
+
+  logger.info("Test join simulated", { telegramId });
 }
 
 export async function handleStats(ctx: Context) {
