@@ -193,4 +193,4 @@ Intro validation rules:
 
 ## Demo
 
-[Demo video →](#) <!-- TODO: Add Loom link -->
+[Demo video →](https://www.loom.com/share/894c2aa725884f3d9b73247cd3f29871)
