@@ -1,22 +1,47 @@
-# Superteam Onboarding Bot
+# Superteam MY — Onboarding Bot
 
-A Telegram bot that onboards new members to the Superteam community by requiring a proper introduction before they can participate in the main group.
+A Telegram bot for [Superteam Malaysia](https://t.me/SooouperBot) that onboards new members by requiring a proper introduction before they can participate in the main group.
+
+**Bot**: [@SooouperBot](https://t.me/SooouperBot)
 
 ## How It Works
 
-1. **User joins the main group** → Bot mutes them and sends a welcome message with a link to the Intro Channel
-2. **User posts an intro in the Intro Channel** → Bot validates the format heuristically (checks for who you are, location, contribution intent)
-3. **Valid intro** → Bot unmutes the user in the main group, pins their intro, and confirms
+```
+User joins main group
+        │
+        ▼
+  Bot mutes user + sends welcome
+  with link to Intro group
+        │
+        ▼
+  User posts intro in Intro group
+        │
+        ▼
+  ┌─────────────┐     ┌──────────────────┐
+  │ Valid intro  │────▶│ Unmute in main   │
+  │             │     │ Pin intro         │
+  │             │     │ Send confirmation │
+  └─────────────┘     └──────────────────┘
+        │
+  ┌─────────────┐     ┌──────────────────┐
+  │ Invalid     │────▶│ Reply with       │
+  │             │     │ what's missing    │
+  └─────────────┘     └──────────────────┘
+```
+
+1. **User joins the main group** → Bot mutes them and sends a welcome message with a link to the Intro group
+2. **User posts an intro** → Bot validates the format (who you are, location, contribution intent)
+3. **Valid intro** → Bot unmutes the user, pins their intro, and confirms
 4. **Invalid intro** → Bot replies with what's missing so the user can retry
 
-As a secondary enforcement, any messages from pending users in the main group are auto-deleted with a reminder to complete their intro first.
+As secondary enforcement, any messages from pending users in the main group are auto-deleted with a reminder to complete their intro first.
 
 ## Tech Stack
 
 - **Runtime**: Node.js + TypeScript
 - **Framework**: [Telegraf v4](https://telegraf.js.org/)
 - **Database**: SQLite via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) (WAL mode)
-- **Validation**: [Zod](https://zod.dev/) for environment config
+- **Config Validation**: [Zod](https://zod.dev/)
 
 ## Project Structure
 
@@ -58,34 +83,33 @@ config/
 - Two Telegram groups: a main group and an intro group
 - Bot added as **admin** to both groups
 
-### Bot Configuration (BotFather)
+### 1. Bot Configuration (BotFather)
 
 1. Create a bot via `/newbot` in BotFather
-2. Disable **Group Privacy** via Bot Settings → Group Privacy → Disable
-3. This allows the bot to read all messages (needed for intro validation)
+2. Disable **Group Privacy**: Bot Settings → Group Privacy → Disable
+   - Required so the bot can read messages in the intro group
+3. Remove and re-add the bot to groups after changing privacy mode
 
-### Group Setup
+### 2. Group Setup
 
-1. Create your main group and intro group
-2. Add the bot to both groups
-3. Promote it to admin in both with permissions:
-   - **Restrict Members** (main group — for muting/unmuting)
-   - **Delete Messages** (both groups)
-   - **Pin Messages** (intro group — for pinning intros)
+| Group | Bot Permissions Needed |
+|-------|----------------------|
+| Main group | Restrict Members, Delete Messages |
+| Intro group | Delete Messages, Pin Messages |
 
-### Environment Variables
+### 3. Environment Variables
 
 ```bash
 cp .env.example .env
 ```
 
-| Variable | Description |
-|----------|-------------|
-| `BOT_TOKEN` | Telegram bot token from BotFather |
-| `MAIN_GROUP_ID` | Chat ID of the main group (e.g. `-100xxxxxxxxxx`) |
-| `INTRO_CHANNEL_ID` | Chat ID of the intro group |
-| `DB_PATH` | Path to SQLite database file (default: `./data/bot.db`) |
-| `LOG_LEVEL` | `debug`, `info`, `warn`, or `error` (default: `info`) |
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `BOT_TOKEN` | Telegram bot token from BotFather | `123456:ABC-DEF...` |
+| `MAIN_GROUP_ID` | Chat ID of the main group | `-5132273750` |
+| `INTRO_CHANNEL_ID` | Chat ID of the intro group | `-5181815538` |
+| `DB_PATH` | SQLite database path | `./data/bot.db` |
+| `LOG_LEVEL` | Log verbosity | `info` |
 
 **Getting chat IDs**: Add the bot to each group, send a message, then call:
 ```
@@ -93,15 +117,16 @@ https://api.telegram.org/bot<TOKEN>/getUpdates
 ```
 Look for the `chat.id` field in the response.
 
-### Run
+### 4. Run
 
 ```bash
+npm install
+
 # Development (auto-reload)
 npm run dev
 
 # Production
-npm run build
-npm start
+npm run build && npm start
 ```
 
 ### Docker
@@ -113,35 +138,59 @@ docker compose up -d
 ## Commands
 
 ### Public
+
 | Command | Description |
 |---------|-------------|
-| `/example` | Show an example intro |
+| `/example` | Show an example intro for reference |
 
 ### Admin Only
+
 | Command | Description |
 |---------|-------------|
-| `/stats` | Show member counts |
-| `/status <id>` | Check a member's onboarding status |
-| `/approve <id>` | Manually approve a user (skip intro) |
-| `/resetintro <id>` | Reset a user's intro (re-mute them) |
-| `/testjoin` | Simulate the join flow for yourself |
+| `/stats` | Member counts (total, pending, introduced, left) |
+| `/status <id>` | Look up a member's onboarding status |
+| `/approve <id>` | Manually approve a user (skip intro requirement) |
+| `/resetintro <id>` | Reset a user's intro status (re-mutes them) |
+| `/testjoin` | Simulate the join flow for yourself (for testing) |
 
-## Configurable
+## Configuration
 
-- **`config/messages.json`** — All bot messages (welcome, accepted, rejected, etc.)
-- **`config/intro-format.json`** — Intro validation rules: minimum length, required sections, and keywords to match
+All bot behavior is configurable without code changes:
 
-## Design Decisions
+### `config/messages.json`
 
-- **Dual enforcement**: Users are both muted via Telegram permissions AND have messages auto-deleted. This handles edge cases where restriction fails (e.g. admin users in testing).
-- **Heuristic validation**: Intros are validated by checking for keywords related to each required section. This is lenient enough to not reject genuine intros while catching low-effort messages.
-- **SQLite with WAL**: Lightweight, zero-config, and fast for the expected load. WAL mode allows concurrent reads.
-- **Cached invite links**: The intro group invite link is generated once and cached to avoid hitting Telegram rate limits.
-- **Event logging**: All actions (join, leave, intro accepted/rejected, admin actions) are logged to an `events` table for auditability.
+Every user-facing message — welcome, accepted, rejected, reminders, admin responses. Uses `{variable}` placeholders for dynamic content.
 
-## Edge Cases Handled
+### `config/intro-format.json`
 
-- **Rejoin**: If a user leaves and rejoins, their status resets to pending
-- **Deleted intros**: Intro text is preserved in the database even if the message is deleted
-- **DM fallback**: If the bot can't DM a user (they haven't started the bot), the welcome is sent in the group and auto-deleted after 2 minutes
-- **Bot can't restrict**: If unmuting fails, the user is informed to contact an admin
+Intro validation rules:
+- `minLength` — Minimum character count
+- `requiredSections` — Each section has a label, keyword list, and required flag
+- Keywords are matched case-insensitively against the intro text
+
+## Approach & Design Decisions
+
+**Dual enforcement** — Users are both muted via Telegram's `restrictChatMember` AND have messages auto-deleted if they somehow bypass the restriction. Belt and suspenders.
+
+**Heuristic validation** — Intros are validated by checking for keywords related to each required section (identity, location, contribution). Lenient enough to not reject genuine intros while catching low-effort "hi" messages. The keywords and sections are fully configurable via JSON.
+
+**SQLite** — Zero-config, embedded, no external services needed. WAL mode for concurrent reads. Two tables: `members` for state, `events` for audit logging.
+
+**Cached invite links** — The intro group invite link is generated once via `exportChatInviteLink` and cached in memory to avoid rate limits.
+
+**Structured logging** — JSON logs with timestamps, levels, and context. Easy to pipe into any log aggregator.
+
+## Edge Cases
+
+| Scenario | Behavior |
+|----------|----------|
+| User leaves and rejoins | Status resets to pending, must re-introduce |
+| User deletes their intro | Intro text preserved in DB, status unchanged |
+| Bot can't DM user | Welcome sent in group, auto-deleted after 2 min |
+| Bot can't unmute | User informed to contact an admin |
+| User posts in main group while pending | Message deleted, reminder sent (auto-deleted after 30s) |
+| User already introduced posts in intro channel | Told they're already introduced |
+
+## Demo
+
+[Demo video →](#) <!-- TODO: Add Loom link -->
