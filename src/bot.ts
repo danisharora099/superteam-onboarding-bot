@@ -19,18 +19,18 @@ export function createBot() {
   // Global error handler
   bot.catch(errorHandler);
 
-  // ── Event handlers ─────────────────────────────────
-  bot.on("new_chat_members", handleJoin);
-  bot.on("left_chat_member", handleLeave);
-
-  // ── Intro channel messages ─────────────────────────
-  bot.on("message", handleIntro);
-
-  // ── Admin commands (guarded) ───────────────────────
+  // ── Admin commands (guarded) ── register before generic message handler
   bot.command("resetintro", adminGuard, handleResetIntro);
   bot.command("approve", adminGuard, handleApprove);
   bot.command("status", adminGuard, handleStatus);
   bot.command("stats", adminGuard, handleStats);
+
+  // ── Event handlers ─────────────────────────────────
+  bot.on("new_chat_members", handleJoin);
+  bot.on("left_chat_member", handleLeave);
+
+  // ── Intro channel messages (catch-all for text) ────
+  bot.on("message", handleIntro);
 
   logger.info("Bot handlers registered");
 
