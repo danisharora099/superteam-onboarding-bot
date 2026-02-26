@@ -38,6 +38,19 @@ export async function unrestrictMember(
   telegramId: number
 ): Promise<boolean> {
   try {
+    // Check if user is admin/creator — they can't be restricted/unrestricted
+    const chatMember = await ctx.telegram.getChatMember(
+      config.MAIN_GROUP_ID,
+      telegramId
+    );
+    if (
+      chatMember.status === "creator" ||
+      chatMember.status === "administrator"
+    ) {
+      logger.info("Skipping unrestrict for admin/creator", { telegramId });
+      return true;
+    }
+
     await ctx.telegram.restrictChatMember(config.MAIN_GROUP_ID, telegramId, {
       permissions: {
         can_send_messages: true,
