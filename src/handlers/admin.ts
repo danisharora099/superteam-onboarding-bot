@@ -130,6 +130,10 @@ export async function handleTestJoin(ctx: Context) {
   logger.info("Test join simulated", { telegramId });
 }
 
+export async function handleExample(ctx: Context) {
+  await ctx.reply(getMessage("exampleIntro"));
+}
+
 export async function handleStats(ctx: Context) {
   const stats = getStats();
 

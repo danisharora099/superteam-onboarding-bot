@@ -2,18 +2,23 @@
   "minLength": 50,
   "requiredSections": [
     {
-      "label": "Name",
-      "keywords": ["name", "i'm", "i am", "myself"],
+      "label": "Who you are & what you do",
+      "keywords": ["i'm", "i am", "my name", "myself", "work", "build", "developer", "designer", "marketer", "founder", "engineer", "student", "lead"],
       "required": true
     },
     {
-      "label": "Background",
-      "keywords": ["background", "work", "experience", "building", "developer", "designer", "marketer", "founder"],
+      "label": "Where you're based",
+      "keywords": ["based", "from", "live in", "located", "city", "country", "kuala lumpur", "kl", "malaysia", "singapore", "remote"],
       "required": true
     },
     {
-      "label": "Interest in Superteam",
-      "keywords": ["superteam", "solana", "web3", "crypto", "blockchain", "community", "contribute", "interested"],
+      "label": "Fun fact",
+      "keywords": ["fun fact", "fun thing", "interesting", "hobby", "first", "love", "passion", "enjoy", "outside of work"],
+      "required": false
+    },
+    {
+      "label": "How you want to contribute to Superteam",
+      "keywords": ["contribute", "looking to", "want to", "help", "excited", "build", "support", "connect", "superteam", "community"],
       "required": true
     }
   ]
